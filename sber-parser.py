@@ -5,35 +5,39 @@ from selenium import webdriver
 
 ssl._create_default_https_context = ssl._create_unverified_context
 
-url = "https://www.sberbank-am.ru/disclosure/fund/etf-sp-500/"
-
-# Set the full path to the geckodriver.exe:
+# Set the full path to the driver executable
+# or specify the driver location in other way.
+# Change to webdriver.Chrome() to use Chrome instead.
 driver = webdriver.Firefox(executable_path='D:\\Work\\geckodriver.exe')
+
+url = "https://www.sberbank-am.ru/disclosure/fund/etf-sp-500/"
 driver.get(url)
 
 driver.find_element_by_link_text("Отчетность за 2019 год").click()
 
+# Get the file links:
 prop_reval_report = driver.find_element_by_partial_link_text("Отчет о приросте").get_attribute("href")
-print("Link to the property revaluation report: {0}".format(prop_reval_report))
-
+# Uncomment the next line for debugging:
+#print("Link to the property revaluation report: {0}".format(prop_reval_report))
 nav_report = driver.find_element_by_partial_link_text("Справка о стоимости").get_attribute("href")
-print("Link to the net asset value report: {0}".format(nav_report), end='\n')
+# Uncomment the next line for debugging:
+#print("Link to the net asset value report: {0}".format(nav_report), end='\n')
 
+# Quit the driver since we don't need it anymore:
 driver.quit()
 
-# Read the file:
+# Read the files:
 prop_reval_tables = camelot.read_pdf(prop_reval_report, process_background=False, pages='1-end', line_scale=45)
 
-# Print parsing statictics:
-for x in prop_reval_tables:
-    print("{0}: {1}".format(x, x.parsing_report))
+# TODO: Change to a formatted output like print("{0}: {1}".format(x, x.parsing_report))
+# Print parsing statictics (uncomment if needed):
+#for x in prop_reval_tables:
+#    print(x.parsing_report)
 
-# Read the file:
 nav_tables = camelot.read_pdf(nav_report, process_background=False, pages='1-end', line_scale=45)
 
-# Print parsing statictics:
-for x in nav_tables:
-    print("{0}: {1}".format(x, x.parsing_report))
+#for x in nav_tables:
+#    print("{0}: {1}".format(x, x.parsing_report))
 
 # Visual debugging (if needed):
 #plt = camelot.plot(prop_reval_tables[1], kind='text')
@@ -42,7 +46,8 @@ for x in nav_tables:
 # Wait for input when using the plot or the window will close automatically:
 #input()
 
-# Export the tables:
+# Export all tables as HTML files at the path specified.
+# Alternative output formats: f='json', f='excel', f='html' or f='sqlite'
 prop_reval_tables.export('D://Work//prop_reval.html', f='html', compress=False)
 nav_tables.export('D://Work//nav.html', f='html', compress=False)
 
