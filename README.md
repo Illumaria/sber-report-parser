@@ -1,2 +1,2 @@
-# sber-reports
+# sber-parser
 Sberbank annual report parsing.
